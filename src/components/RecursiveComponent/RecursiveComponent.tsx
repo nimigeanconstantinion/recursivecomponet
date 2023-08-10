@@ -1,22 +1,32 @@
 import React from 'react';
 import {TreeNode} from "react-organizational-chart";
+import styled from "styled-components";
+
+const StyledNode = styled.div`
+  padding: 5px;
+  border-radius: 8px;
+  display: inline-block;
+  border: 1px solid red;
+`;
 
 interface RecursiveComponentProps {
     id: string;
     label: string;
 
-    children?: RecursiveComponentProps[];
+    subordinates?: RecursiveComponentProps[];
 }
 
-const RecursiveComponent:React.FC<RecursiveComponentProps>=({id,label,children})=>{
+const RecursiveComponent:React.FC<RecursiveComponentProps>=({id,label,subordinates})=>{
     return (
         <>
-            <TreeNode>
-                <div>
-                    ID: {id} | Name: {label}
-                </div>
-                {children && children.map((child) => <RecursiveComponent key={child.id} {...child} />)}
+            <TreeNode  label={<StyledNode>{label}</StyledNode>}>
+                {/*ID: {id} | Name: {name}*/}
+
+                {subordinates && subordinates.map((child) => <RecursiveComponent key={child.id} {...child} />)}
+
             </TreeNode>
+
+
         </>
 
     );
