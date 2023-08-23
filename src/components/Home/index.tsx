@@ -3,6 +3,9 @@ import Api from "../../Api";
 import { Tree, TreeNode } from 'react-organizational-chart';
 import styled from "styled-components";
 import RecursiveComponent from "../RecursiveComponent/RecursiveComponent";
+import Aside from "../Aside";
+import {DndProvider} from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 const StyledNode = styled.div`
   padding: 5px;
   border-radius: 8px;
@@ -12,12 +15,12 @@ const StyledNode = styled.div`
 
 interface RecursiveComponentProps {
     id: string;
-    label: string;
-
-    subordinates?: RecursiveComponentProps[];
+    name: string;
+    data?:BKNode,
+    children?: RecursiveComponentProps[];
 }
 
-interface BKNode{
+export interface BKNode{
     id:string,
     label:string,
     descriere:string,
@@ -77,36 +80,41 @@ function Index(){
     }
     ,[tree])
 
+    useEffect(()=>{
+        console.log("Datt =====");
+        console.log(datt);
+    },[datt])
+
     const data: RecursiveComponentProps = {
         id: "1",
-        label: 'Parent',
-        subordinates: [
+        name: 'Parent',
+        children: [
             {
                 id: "2",
-                label: 'Child 1',
-                subordinates: [
+                name: 'Child 1',
+                children: [
                     {
                         id: "3",
-                        label: 'Grandchild 1',
-                        subordinates: [
+                        name: 'Grandchild 1',
+                        children: [
                             {
                                 id: "6",
-                                label: 'Grandchild 11',
-                                subordinates: [],
+                                name: 'Grandchild 11',
+                                children: [],
                             }
                         ],
                     },
                     {
                         id: "4",
-                        label: 'Grandchild 2',
-                        subordinates: [],
+                        name: 'Grandchild 2',
+                        children: [],
                     },
                 ],
             },
             {
                 id: "5",
-                label: 'Child 2',
-                subordinates: [],
+                name: 'Child 2',
+                children: [],
             },
         ],
     };
@@ -133,8 +141,8 @@ function Index(){
         let api=new Api();
         let f1:RecursiveComponentProps={
             id:"",
-            label:"Base",
-            subordinates:[]
+            name:"Base",
+            children:[]
         }
         let root:BKNode={
             id:"",
@@ -148,8 +156,8 @@ function Index(){
         }
         let treeProp:RecursiveComponentProps[]=[]
         let ftre:BKNode={
-            id:"",
-            label:"",
+            id:"01",
+            label:"Base Entry",
             descriere:"",
             parinte:null,
             generator:null,
@@ -182,37 +190,38 @@ function Index(){
 
             let toR:RecursiveComponentProps={
                 id:nod.id,
-                label:nod.label,
-                subordinates:[]
+                name:nod.label,
+                data:nod,
+                children:[]
             }
             nod.subordinates.map(s=>{
-              toR.subordinates!.push(nodeToRecursiveProp(s));
+              toR.children!.push(nodeToRecursiveProp(s));
             })
         return toR;
     }
 
-    // @ts-ignore
-    // @ts-ignore
+
     return(
         <>
-            <Tree lineWidth={'2px'}
-                  lineColor={'green'}
-                  lineBorderRadius={'10px'}
-                  label={<StyledNode>Organisation Chart</StyledNode>}>
-                {
-                    show>-1?(
-                        <TreeNode label={"Start"}>
+            <DndProvider backend={HTML5Backend}>
 
-                            <RecursiveComponent id={""} label={""}  {...datt} />
-
-                        </TreeNode>
+            <Aside/>
+            <div className={"divright"}>
+                <Tree lineWidth={'2px'}
+                      lineColor={'green'}
+                      lineBorderRadius={'10px'}
+                      label={<StyledNode>Organisation Chart</StyledNode>}>
 
 
+                            <RecursiveComponent id={""} name={""} {...datt} />
 
-                    ):""
-                }
 
-            </Tree>
+
+
+
+                </Tree>
+            </div>
+            </DndProvider>
         </>
     )
 

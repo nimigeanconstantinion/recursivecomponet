@@ -33,7 +33,7 @@ const DraggingRecursiveComponent:React.FC<DraggingRecursiveComponentProps>=({id,
 
     return (
         <>
-            <TreeNode ref={drag} label={<StyledNode>{label}</StyledNode>}>
+            <TreeNode label={<StyledNode>{label}</StyledNode>}>
                 {/*ID: {id} | Name: {name}*/}
 
                 {subordinates && subordinates.map((child) => <DraggingRecursiveComponent key={child.id} {...child} />)}

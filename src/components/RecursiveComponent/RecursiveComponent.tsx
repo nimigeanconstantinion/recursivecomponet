@@ -1,7 +1,12 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {TreeNode} from "react-organizational-chart";
 import styled from "styled-components";
-import {useDrag} from "react-dnd";
+import {useDrag, useDrop} from "react-dnd";
+import {NodeProps} from "../Node/index";
+import {WrapperRecursiveComp} from "./RecursiveCompenentStyle";
+import {WrapperNode} from "../Node/NodeStyle";
+import {BKNode} from "../Home";
+
 
 const StyledNode = styled.div`
   padding: 5px;
@@ -10,26 +15,55 @@ const StyledNode = styled.div`
   border: 1px solid red;
 `;
 
-interface RecursiveComponentProps {
-    id: string;
-    label: string;
-
-    subordinates?: RecursiveComponentProps[];
+export interface RecursiveComponentProps {
+    id: string,
+    name: string,
+    data?:BKNode,
+    children?: RecursiveComponentProps[]
 }
 
-const RecursiveComponent:React.FC<RecursiveComponentProps>=({id,label,subordinates})=>{
+const RecursiveComponent:React.FC<RecursiveComponentProps>=({id,name,children})=>{
+    const [ch,setCh]=useState(0);
+    const [{isOver}, drop] = useDrop(() => ({
+        accept:"node",
+        drop: (item:NodeProps) => addCardToArr(item),
+        collect: (monitor) => ({
+            isOver: !!monitor.isOver(),
+        })
+    }))
 
-   
+    const addCardToArr = (item: RecursiveComponentProps)=>{
 
+        console.log("Itemul add in subordinates")
+        console.log(item);
+       // item.subordinates=new Array<RecursiveComponentProps>();
+        //let emptySub:RecursiveComponentProps[]=[];
+        // if(item.subordinates==undefined){
+        //     item.subordinates=emptySub
+        // }
+        children?.push(item);
+        console.log(children);
+        setCh(prevState => prevState+1);
+        //console.log(subordinates);
+    }
+
+    let clk=(e:EventTarget)=>{
+
+    }
     return (
         <>
-            <TreeNode label={<StyledNode>{label}</StyledNode>}>
-                {/*ID: {id} | Name: {name}*/}
 
-                {subordinates && subordinates.map((child) => <RecursiveComponent key={child.id} {...child} />)}
+                    <TreeNode
+                        label={
+                        <div ref= {drop} >
+                                    ID: {id} | Label: {name}
+                        </div>
+                    }>
+                            {children && children.map((child) => <RecursiveComponent key={child.id} {...child} />)}
 
-            </TreeNode>
 
+
+                    </TreeNode>
 
         </>
 
