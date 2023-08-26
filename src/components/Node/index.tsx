@@ -26,7 +26,7 @@ export const Nod :React.FC<NodeProps> = (({id, name,children}) =>{
 
     const [{isDragging}, drag] = useDrag(()=>({
         type:"node",
-        item: {id:id,name:name},
+        item: {id:id,name:name,children:children},
         collect:(monitor) =>({
 
             isDragging: !!monitor.isDragging(),

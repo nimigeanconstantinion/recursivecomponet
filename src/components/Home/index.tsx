@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import Api from "../../Api";
 import { Tree, TreeNode } from 'react-organizational-chart';
 import styled from "styled-components";
@@ -56,11 +56,18 @@ function Index(){
     const [datt,setDatt]=useState<RecursiveComponentProps>();
     const [change,setChange]=useState(0);
     const [show,SetShow]=useState(0);
+    const [k,setK]=useState<number>(0);
+    const countRef = useRef<number>(0);
 
     useEffect(()=>{
         loadTree();
 
     },[])
+
+    useEffect(()=>{
+        console.log("K devine ="+k);
+        console.log("k din ref="+countRef.current);
+    },[k]);
 
     useEffect(()=>{
          console.log("Am schimbat arborele");
@@ -126,6 +133,7 @@ function Index(){
         console.log("kjkjlwkejdlkjedlkj")
         if(change>0&&tree!=undefined){
             console.log(tree);
+            handleIndexare();
             let f:RecursiveComponentProps=nodeToRecursiveProp(tree);
             console.log("recursive");
             console.log(f);
@@ -136,6 +144,12 @@ function Index(){
 
 
     },[change])
+
+    const handleIndexare = () => {
+
+          setK((prevState) => prevState+1);
+
+    };
 
     let loadTree=async ()=>{
         let api=new Api();
@@ -173,7 +187,9 @@ function Index(){
 
            response.map(t=>{
                 if((t as BKNode).id!=null){
+
                     ftre.subordinates.push(t as BKNode);
+
                 }
 
            })
@@ -185,9 +201,9 @@ function Index(){
 
 
     }
+
     let nodeToRecursiveProp=(nod:BKNode):RecursiveComponentProps=>{
-
-
+            handleIndexare();
             let toR:RecursiveComponentProps={
                 id:nod.id,
                 name:nod.label,
@@ -195,6 +211,7 @@ function Index(){
                 children:[]
             }
             nod.subordinates.map(s=>{
+                handleIndexare();
               toR.children!.push(nodeToRecursiveProp(s));
             })
         return toR;
@@ -207,19 +224,26 @@ function Index(){
 
             <Aside/>
             <div className={"divright"}>
-                <Tree lineWidth={'2px'}
-                      lineColor={'green'}
-                      lineBorderRadius={'10px'}
-                      label={<StyledNode>Organisation Chart</StyledNode>}>
+
+                {
+                    k&&datt?(
+                        <>
+                            <Tree lineWidth={'2px'}
+                                  lineColor={'green'}
+                                  lineBorderRadius={'10px'}
+                                  label={<StyledNode>Organisation Chart</StyledNode>}>
 
 
-                            <RecursiveComponent id={""} name={""} {...datt} />
+                                <RecursiveComponent key={k}  {...datt} />
 
 
 
 
 
-                </Tree>
+                            </Tree>
+                        </>
+                    ):""
+                }
             </div>
             </DndProvider>
         </>

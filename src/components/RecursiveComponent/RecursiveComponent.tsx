@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {CSSProperties, useState} from 'react';
 import {TreeNode} from "react-organizational-chart";
 import styled from "styled-components";
 import {useDrag, useDrop} from "react-dnd";
@@ -6,6 +6,8 @@ import {NodeProps} from "../Node/index";
 import {WrapperRecursiveComp} from "./RecursiveCompenentStyle";
 import {WrapperNode} from "../Node/NodeStyle";
 import {BKNode} from "../Home";
+import {Simulate} from "react-dom/test-utils";
+import dragEnd = Simulate.dragEnd;
 
 
 const StyledNode = styled.div`
@@ -14,6 +16,16 @@ const StyledNode = styled.div`
   display: inline-block;
   border: 1px solid red;
 `;
+
+const style: CSSProperties = {
+    border: '1px dashed gray',
+    backgroundColor: 'white',
+    padding: '0.5rem 1rem',
+    marginRight: '1.5rem',
+    marginBottom: '1.5rem',
+    cursor: 'move',
+    float: 'left',
+}
 
 export interface RecursiveComponentProps {
     id: string,
@@ -24,6 +36,17 @@ export interface RecursiveComponentProps {
 
 const RecursiveComponent:React.FC<RecursiveComponentProps>=({id,name,children})=>{
     const [ch,setCh]=useState(0);
+
+    // const [{isDragging}, drag] = useDrag(()=>({
+    //     type:"node",
+    //     item: {id:id,name:name,children:children},
+    //     collect:(monitor) =>({
+    //
+    //         isDragging: !!monitor.isDragging(),
+    //     }),
+    //
+    // }));
+
     const [{isOver}, drop] = useDrop(() => ({
         accept:"node",
         drop: (item:NodeProps) => addCardToArr(item),
@@ -32,19 +55,18 @@ const RecursiveComponent:React.FC<RecursiveComponentProps>=({id,name,children})=
         })
     }))
 
-    const addCardToArr = (item: RecursiveComponentProps)=>{
+    const addCardToArr = (item: NodeProps)=>{
 
         console.log("Itemul add in subordinates")
         console.log(item);
-       // item.subordinates=new Array<RecursiveComponentProps>();
-        //let emptySub:RecursiveComponentProps[]=[];
-        // if(item.subordinates==undefined){
-        //     item.subordinates=emptySub
-        // }
-        children?.push(item);
+        let adr:RecursiveComponentProps={
+            id:item.id,
+            name:item.name,
+            children:new Array<RecursiveComponentProps>()
+        }
+        children?.push(adr);
         console.log(children);
         setCh(prevState => prevState+1);
-        //console.log(subordinates);
     }
 
     let clk=(e:EventTarget)=>{
@@ -55,9 +77,9 @@ const RecursiveComponent:React.FC<RecursiveComponentProps>=({id,name,children})=
 
                     <TreeNode
                         label={
-                        <div ref= {drop} >
+                        <WrapperRecursiveComp ref= {drop} >
                                     ID: {id} | Label: {name}
-                        </div>
+                        </WrapperRecursiveComp>
                     }>
                             {children && children.map((child) => <RecursiveComponent key={child.id} {...child} />)}
 
