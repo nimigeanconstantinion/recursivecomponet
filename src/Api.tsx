@@ -1,4 +1,5 @@
 import ResponseImpl from "./model/ResponseImpl";
+import {BKNode} from "./components/Home";
 
 type ResponseBody = {};
 
@@ -36,5 +37,42 @@ export default class Api {
         let ret = response.json();
         console.log(ret);
         return ret;
+    }
+
+    addNode=async(nod:BKNode,idP:string):Promise<BKNode>=>{
+        let response = await this.api("http://localhost:8080/api/v1/tree/addchild/"+idP, "POST",nod);
+        return response.json();
+
+    }
+
+    addNodetoParent=async(nod:BKNode,idP:string):Promise<Object>=>{
+        let response = await this.api("http://localhost:8080/api/v1/tree/addchild2parent/"+idP, "POST",nod);
+        return response.json();
+
+    }
+
+    addChild=async(nod:BKNode,idP:string):Promise<BKNode>=>{
+        let response = await this.api("http://localhost:8080/api/v1/tree/addchild/"+idP, "POST",nod);
+        return response.json();
+
+    }
+
+    getNodeByLabel=async (lbl:String):Promise<BKNode>=>{
+        let response = await this.api("http://localhost:8080/api/v1/tree/getnodebylabel/"+lbl, "GET",null);
+        return response.json();
+    }
+
+    getNodeByLabel2=async (lbl:String):Promise<Object>=>{
+        let response = await this.api("http://localhost:8080/api/v1/tree/getnodebylabel/"+lbl, "GET",null);
+        console.log("Din getNodeByLabel2");
+        console.log(response);
+
+        return response.json();
+    }
+
+    dropItem=async (idC:string,idP:string):Promise<boolean>=>{
+        let response = await this.api("http://localhost:8080/api/v1/tree/dropnode/"+idC+"/"+idP, "POST",null);
+
+        return response.json();
     }
 }

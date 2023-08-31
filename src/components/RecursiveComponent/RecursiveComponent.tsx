@@ -8,6 +8,7 @@ import {WrapperNode} from "../Node/NodeStyle";
 import {BKNode} from "../Home";
 import {Simulate} from "react-dom/test-utils";
 import dragEnd = Simulate.dragEnd;
+import Api from "../../Api";
 
 
 const StyledNode = styled.div`
@@ -28,56 +29,140 @@ const style: CSSProperties = {
 }
 
 export interface RecursiveComponentProps {
-    id: string,
+    id?: string|null,
     name: string,
     data?:BKNode,
+    backFunc?:Function,
     children?: RecursiveComponentProps[]
 }
 
-const RecursiveComponent:React.FC<RecursiveComponentProps>=({id,name,children})=>{
+const RecursiveComponent:React.FC<RecursiveComponentProps>=({id,name,backFunc,data,children})=>{
     const [ch,setCh]=useState(0);
+    // const combinedRefs =React.useCallback((node:RecursiveComponentProps)=>{
+    //     dragRef(node);
+    //     dropRef(node);
+    // },[dragRef,dropRef])
 
-    // const [{isDragging}, drag] = useDrag(()=>({
-    //     type:"node",
-    //     item: {id:id,name:name,children:children},
-    //     collect:(monitor) =>({
-    //
-    //         isDragging: !!monitor.isDragging(),
-    //     }),
-    //
-    // }));
+    const [{isDragging}, dragRef] = useDrag(()=>({
+        type:"node",
+        item: {id:id,name:name,children:children,data:data},
+        collect:(monitor) =>({
 
-    const [{isOver}, drop] = useDrop(() => ({
+            isDragging: !!monitor.isDragging(),
+        }),
+
+    }));
+
+    const [{canDrop,isOver}, dropRef] = useDrop(() => ({
         accept:"node",
         drop: (item:NodeProps) => addCardToArr(item),
         collect: (monitor) => ({
+            canDrop: monitor.canDrop(),
+
             isOver: !!monitor.isOver(),
         })
     }))
 
-    const addCardToArr = (item: NodeProps)=>{
+    const combinedRefs = React.useCallback(
+        (node: HTMLDivElement) => {
+            dragRef(node);
+            dropRef(node);
+        },
+        [dragRef, dropRef]
+    );
+    const addCardToArr =async (item: NodeProps)=>{
 
         console.log("Itemul add in subordinates")
-        console.log(item);
+
+        console.log(item.data?.label);
+        console.log("------------------------------");
         let adr:RecursiveComponentProps={
             id:item.id,
             name:item.name,
+            data:item.data,
             children:new Array<RecursiveComponentProps>()
         }
+
+
         children?.push(adr);
         console.log(children);
+
+        addChild(item)
         setCh(prevState => prevState+1);
+    }
+
+    let addChild=async (nod:RecursiveComponentProps):Promise<void>=>{
+        console.log("--- la drop")
+        console.log(data);
+
+        if(nod.data?.label==undefined){
+                    let addv:BKNode|null=null;
+
+                    if(data!=null){
+                        addv=data;
+                    }
+                    console.log("Addv=")
+                    console.log(addv);
+
+                    let nodBK:BKNode={
+                        id:null,
+                        label:nod.name,
+                        descriere:"",
+                        subordinates:[],
+                        generatedID:null,
+                        cfields:[]
+
+                    }
+
+
+
+
+
+
+                    let api=new Api();
+                    try{
+                        if(data==null||data.id==null||data.label.includes("Base")){
+                            let response=await api.addNodetoParent(nodBK,"null");
+
+                        }else{
+
+                            let result=await api.addNodetoParent(nodBK,data.label);
+
+                        }
+
+                    }catch (e) {
+                        console.log("EROARE de adaugare NOD");
+                        alert("Nodul deja exista!");
+
+                    }
+
+        }else{
+          let api=new Api();
+          if(nod.id!=null&&nod.id!=undefined&&id!=null&&id!=undefined){
+              let resp=await api.dropItem(nod.id,id);
+              console.log("Am facut DROp in BKEnd cu reziultat "+resp);
+          }
+
+        }
+
+        if(backFunc!=undefined){
+            backFunc();
+
+        }
+
     }
 
     let clk=(e:EventTarget)=>{
 
     }
+
+
     return (
         <>
 
                     <TreeNode
                         label={
-                        <WrapperRecursiveComp ref= {drop} >
+                        <WrapperRecursiveComp ref= {combinedRefs} >
                                     ID: {id} | Label: {name}
                         </WrapperRecursiveComp>
                     }>

@@ -3,21 +3,21 @@ import {WrapperAside} from "./AsideStyle";
 
 const nodes=[
     {
-    id:"51",
+    id:"",
     name:"Copil 51",
     subordinates:[]
 },
     {
-    id: "52",
+    id: "",
     name: "Copil 52",
         subordinates:[]
 },
     {
-        id: "53",
+        id: "",
         name: "Copil 53",
         subordinates:[]
     },{
-        id: "54",
+        id: "",
         name: "Copil 54",
         subordinates:[]
     }]

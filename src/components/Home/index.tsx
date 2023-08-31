@@ -17,18 +17,54 @@ interface RecursiveComponentProps {
     id: string;
     name: string;
     data?:BKNode,
+    backFunc?:Function,
     children?: RecursiveComponentProps[];
 }
 
-export interface BKNode{
-    id:string,
-    label:string,
-    descriere:string,
-    parinte:BKNode|null,
-    subordinates:BKNode[],
-    generator:Generator|null,
-    customFields:CustomFields[],
+// export interface BKNode{
+//     id:string,
+//     label:string,
+//     descriere:string,
+//     parinte:BKNode|null,
+//     subordinates:BKNode[],
+//     generator:Generator|null,
+//     customFields:CustomFields[],
+//
+// }
+//
+// interface Generator{
+//     id:number,
+//     pattern:string,
+//     minValue:string,
+//     maxValue:string,
+//     nextValue:string,
+//     generationType:string,
+//     generatedOn:string
+// }
+//
+// interface CustomFields{
+//     id:string,
+//     customKey:string,
+//     value:string,
+//     type:string
+// }
 
+interface cField{
+    id: string|null,
+    customKey: string,
+    value: string,
+    type: string,
+    parentRid:string
+}
+
+export interface BKNode{
+    id: string|null,
+    label: string,
+    descriere: string,
+    cfields: cField[],
+    subordinates?: BKNode[],
+    parinte?:BKNode|null,
+    generatedID:Generator|null
 }
 
 interface Generator{
@@ -41,12 +77,6 @@ interface Generator{
     generatedOn:string
 }
 
-interface CustomFields{
-    id:string,
-    customKey:string,
-    value:string,
-    type:string
-}
 
 
 function Index(){
@@ -164,8 +194,8 @@ function Index(){
             descriere:"",
             parinte:null,
             subordinates:[],
-            generator:null,
-            customFields:[]
+            generatedID:null,
+            cfields:[]
 
         }
         let treeProp:RecursiveComponentProps[]=[]
@@ -174,8 +204,8 @@ function Index(){
             label:"Base Entry",
             descriere:"",
             parinte:null,
-            generator:null,
-            customFields:[],
+            generatedID:null,
+            cfields:[],
             subordinates:[]
         };
 
@@ -187,8 +217,10 @@ function Index(){
 
            response.map(t=>{
                 if((t as BKNode).id!=null){
+                    if(ftre.subordinates!=null){
+                        ftre.subordinates.push(t as BKNode);
 
-                    ftre.subordinates.push(t as BKNode);
+                    }
 
                 }
 
@@ -205,18 +237,27 @@ function Index(){
     let nodeToRecursiveProp=(nod:BKNode):RecursiveComponentProps=>{
             handleIndexare();
             let toR:RecursiveComponentProps={
-                id:nod.id,
+                id:nod.id as string,
                 name:nod.label,
                 data:nod,
+                backFunc:refreshTree,
                 children:[]
             }
-            nod.subordinates.map(s=>{
-                handleIndexare();
-              toR.children!.push(nodeToRecursiveProp(s));
-            })
+            if(nod.subordinates!=undefined){
+                nod.subordinates.map(s=>{
+                    handleIndexare();
+                    toR.children!.push(nodeToRecursiveProp(s));
+                })
+            }
+
         return toR;
     }
 
+
+    let refreshTree=()=>{
+        loadTree();
+        handleIndexare();
+    }
 
     return(
         <>
@@ -234,7 +275,7 @@ function Index(){
                                   label={<StyledNode>Organisation Chart</StyledNode>}>
 
 
-                                <RecursiveComponent key={k}  {...datt} />
+                                <RecursiveComponent key={k} {...datt} />
 
 
 

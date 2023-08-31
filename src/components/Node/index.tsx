@@ -18,11 +18,12 @@ export interface NodeProps {
 
     id:string,
     name: string,
+    data?:BKNode,
     children?:NodeProps[]
 }
 
 
-export const Nod :React.FC<NodeProps> = (({id, name,children}) =>{
+export const Nod :React.FC<NodeProps> = (({id, name,data,children}) =>{
 
     const [{isDragging}, drag] = useDrag(()=>({
         type:"node",
